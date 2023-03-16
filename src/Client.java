@@ -3,85 +3,68 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Client {
-    private static final String HOST = "localhost";
-    private static final int PORT = 12345;
+    public static void main(String[] args) {
+        String host = "localhost";
+        int port = 8888;
 
-    public static void main(String[] args) throws IOException {
-        Socket socket = new Socket(HOST, PORT);
+        try {
+            Socket socket = new Socket(host, port);
+            BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Scanner scanner = new Scanner(System.in);
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            while (true) {
+                System.out.println("Menu:");
+                System.out.println("1. Register");
+                System.out.println("2. Login");
+                System.out.println("3. Exit");
+                System.out.print("Choose an option: ");
+                int option = scanner.nextInt();
+                scanner.nextLine();
 
-        BufferedReader consoleIn = new BufferedReader(new InputStreamReader(System.in));
-
-        System.out.println("Welcome to the chat app!");
-
-        while (true) {
-            System.out.println("Enter a command (REGISTER, LOGIN, LOGOUT, VIEW_USERS):");
-            String command = consoleIn.readLine();
-
-            switch (command) {
-                case "REGISTER":
-                    System.out.println("Enter your name:");
-                    String name = consoleIn.readLine();
-                    System.out.println("Enter a username:");
-                    String username = consoleIn.readLine();
-                    System.out.println("Enter a password:");
-                    String password = consoleIn.readLine();
+                if (option == 1) {
+                    System.out.print("Enter name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter username: ");
+                    String username = scanner.nextLine();
+                    System.out.print("Enter password: ");
+                    String password = scanner.nextLine();
 
                     out.println("REGISTER");
                     out.println(name);
                     out.println(username);
                     out.println(password);
 
-                    System.out.println(in.readLine());
-                    break;
-                case "LOGIN":
-                    System.out.println("Enter your username:");
-                    username = consoleIn.readLine();
-                    System.out.println("Enter your password:");
-                    password = consoleIn.readLine();
+                    String response = in.readLine();
+                    System.out.println(response);
+                } else if (option == 2) {
+                    System.out.print("Enter username: ");
+                    String username = scanner.nextLine();
+                    System.out.print("Enter password: ");
+                    String password = scanner.nextLine();
 
                     out.println("LOGIN");
                     out.println(username);
                     out.println(password);
 
                     String response = in.readLine();
-
-                    if (response.equals("User authenticated.")) {
-                        System.out.println(response);
-
-                        while (true) {
-                            System.out.println("Enter a message (LOGOUT to exit):");
-                            String message = consoleIn.readLine();
-
-                            if (message.equals("LOGOUT")) {
-                                out.println("LOGOUT");
-                                System.out.println(in.readLine());
-                                break;
-                            } else {
-                                System.out.println("Invalid command.");
-                            }
-                        }
-                    } else {
-                        System.out.println(response);
-                    }
-
+                    System.out.println(response);
+                } else if (option == 3) {
+                    out.println("EXIT");
                     break;
-                case "LOGOUT":
-                    out.println("LOGOUT");
-                    System.out.println(in.readLine());
-                    break;
-                case "VIEW_USERS":
-                    out.println("VIEW_USERS");
-                    System.out.println(in.readLine());
-                    break;
-                default:
-                    System.out.println("Invalid command.");
-                    break;
+                } else {
+                    System.out.println("Invalid option.");
+                }
             }
+
+            in.close();
+            out.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
