@@ -36,7 +36,7 @@ public class ClientHandler implements Runnable {
                     }
 
                     if (userExists) {
-                        out.println("Username already exists.");
+                        out.println("EROR [CANNOT REGISTER USERNAME ALREADY EXISTS]");
                     } else {
                         User user = new User(name, username, password);
                         Server.addUser(user);
@@ -45,19 +45,34 @@ public class ClientHandler implements Runnable {
                 } else if (request.equals("LOGIN")) {
                     String username = in.readLine();
                     String password = in.readLine();
-
                     boolean userExists = false;
+                    //TO LOGIN THE USER
                     for (User user : users) {
                         if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
                             userExists = true;
+                            user.setLoggedIn(true);
                             break;
                         }
                     }
-
                     if (userExists) {
                         out.println("Login successful.");
                     } else {
-                        out.println("Invalid username or password.");
+                        boolean uName = false;
+                        boolean pass = false;
+                        for (User user : users){
+                            if (user.getUsername().equals(username)){
+                                uName = true;
+                            } else if (user.getPassword().equals(password)) {
+                                pass = true;
+                            }
+                        }
+                        if (uName == false) {
+                            out.println("ERROR 404 (NOT FOUND)");
+                        } else if(uName == true && pass == false){
+                            out.println("ERROR 401 (UNAUTHORIZED)");
+                        } else{
+                            out.println("NEW ERROR CLIENTHANDLER LINE 74");
+                        }
                     }
                 } else if (request.equals("EXIT")) {
                     break;
