@@ -22,10 +22,15 @@ public class FileUserManager {
                     String username = tokens[1];
                     String password = tokens[2];
                     boolean loggedIn = Boolean.parseBoolean(tokens[3]);
-                    User user = new User(name, username, password, loggedIn);
+                    double scoreHistory = Double.parseDouble(tokens[4]);
+                    int attempts = Integer.parseInt(tokens[5]);
+                    
+                    User user = new User(name, username, password, loggedIn, scoreHistory, attempts);
                     users.add(user);
                 }
                 reader.close();
+            } else {
+                return null;
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -38,7 +43,7 @@ public class FileUserManager {
             File file = new File(USER_DATA_FILE);
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             for (User user : users) {
-                String line = user.getName() + "," + user.getUsername() + "," + user.getPassword() + "," + user.isLoggedIn();
+                String line = user.getName() + "," + user.getUsername() + "," + user.getPassword() + "," + user.isLoggedIn() + "," + user.getScoreHistory() + "," + user.getAttempts();
                 writer.write(line);
                 writer.newLine();
             }
