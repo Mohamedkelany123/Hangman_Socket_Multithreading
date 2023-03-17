@@ -22,6 +22,8 @@ public class ClientHandler implements Runnable {
 
             String request = null;
             while ((request = in.readLine()) != null) {
+                
+                
                 if (request.equals("REGISTER")) {
                     String name = in.readLine();
                     String username = in.readLine();
@@ -38,11 +40,16 @@ public class ClientHandler implements Runnable {
                     if (userExists) {
                         out.println("EROR [CANNOT REGISTER USERNAME ALREADY EXISTS]");
                     } else {
-                        User user = new User(name, username, password);
+                        User user = new User(name, username, password, false);
                         Server.addUser(user);
+
+                        FileUserManager.saveUsers(users);
+
+
                         out.println("User registered successfully.");
                     }
-                } else if (request.equals("LOGIN")) {
+                } 
+                else if (request.equals("LOGIN")) {
                     String username = in.readLine();
                     String password = in.readLine();
                     boolean userExists = false;
@@ -51,6 +58,7 @@ public class ClientHandler implements Runnable {
                         if (user.getUsername().equals(username) && user.getPassword().equals(password) && !user.isLoggedIn()) {
                             userExists = true;
                             user.setLoggedIn(true);
+                            FileUserManager.saveUsers(users);
                             break;
                         }
                     }

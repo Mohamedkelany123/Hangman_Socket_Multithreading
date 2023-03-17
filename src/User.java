@@ -4,11 +4,11 @@ public class User {
     private String password;
     private boolean loggedin;
 
-    public User(String name, String username, String password) {
+    public User(String name, String username, String password, boolean loggedIn) {
         this.name = name;
         this.username = username;
         this.password = password;
-        this.loggedin = false;
+        this.loggedin = loggedIn;
     }
 
     public String getName() {
@@ -30,4 +30,5 @@ public class User {
     public void setLoggedIn(boolean loggedin) {
         this.loggedin = loggedin;
     }
+
 }

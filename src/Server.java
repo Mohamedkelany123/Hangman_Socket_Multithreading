@@ -4,7 +4,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class Server {
-    private static ArrayList<User> users = new ArrayList<User>();
+    private static ArrayList<User> users = FileUserManager.loadUsers();
 
     public static void main(String[] args) {
         int port = 8888;
@@ -41,5 +41,7 @@ public class Server {
 
     public static void addUser(User user) {
         users.add(user);
-    }    
+    }   
+    
+    
 }
