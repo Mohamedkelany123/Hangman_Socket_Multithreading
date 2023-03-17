@@ -41,5 +41,5 @@ public class Server {
 
     public static void addUser(User user) {
         users.add(user);
-    }
+    }    
 }

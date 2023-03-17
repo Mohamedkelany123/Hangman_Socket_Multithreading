@@ -46,9 +46,9 @@ public class ClientHandler implements Runnable {
                     String username = in.readLine();
                     String password = in.readLine();
                     boolean userExists = false;
-                    //TO LOGIN THE USER
+                    //TO LOGIN THE USER WE NEED TO FIND USERNAME AND PASS AND CHECK IF HE ALREADY LOGGEDIN BEFORE
                     for (User user : users) {
-                        if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
+                        if (user.getUsername().equals(username) && user.getPassword().equals(password) && !user.isLoggedIn()) {
                             userExists = true;
                             user.setLoggedIn(true);
                             break;
@@ -59,14 +59,20 @@ public class ClientHandler implements Runnable {
                     } else {
                         boolean uName = false;
                         boolean pass = false;
+                        boolean logged = false;
                         for (User user : users){
-                            if (user.getUsername().equals(username)){
+                            if (user.isLoggedIn() && user.getUsername().equals(username) && user.getPassword().equals(password)){
+                                logged = true;
+                            } else if (user.getUsername().equals(username)){
                                 uName = true;
                             } else if (user.getPassword().equals(password)) {
                                 pass = true;
-                            }
+                            } 
                         }
-                        if (uName == false) {
+                        //HANDLE THE USER LOGIN ERRORS
+                        if (logged == true){
+                            out.println("ERROR (USER ALREADY LOGGEDIN)");
+                        }else if (uName == false) {
                             out.println("ERROR 404 (NOT FOUND)");
                         } else if(uName == true && pass == false){
                             out.println("ERROR 401 (UNAUTHORIZED)");
