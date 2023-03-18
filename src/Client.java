@@ -7,7 +7,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client {    
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String host = "localhost";
         int port = 8888;
 
@@ -56,8 +56,9 @@ public class Client {
                         out.println(username);
                         out.println(password);
 
-                        String response = in.readLine();
-                        System.out.println(response);
+                        //TO WAIT FOR SERVER RESPONSE
+                        Thread.sleep(500);
+
                     } else if (option == 2) {
                         System.out.print("Enter username: ");
                         String username = scanner.nextLine();
@@ -68,11 +69,10 @@ public class Client {
                         out.println(username);
                         out.println(password);
 
-                        String response = in.readLine();
-                        //String response2 = in.readLine();
+                        //TO WAIT FOR SERVER RESPONSE
+                        Thread.sleep(500);
 
-                        //System.out.println(response);
-                        //System.out.println(response2);
+                        String response = serverCon.getCurrentResponse();
                         if (response.equals("USER LOGGED IN SUCCESSFULLY")){
                             System.out.println();
                             System.out.println("Choose mode: ");
@@ -82,9 +82,6 @@ public class Client {
                             //SEND GAMEMODE TO CLIENT HANDLER
                             String choice = scanner.nextLine();
                             out.println(choice);
-                            
-                            
-
 
                             
 
@@ -98,10 +95,9 @@ public class Client {
                     }
                 }
             }
-
             in.close();
             out.close();
-            //socket.close();
+            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

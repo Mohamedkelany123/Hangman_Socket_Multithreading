@@ -12,9 +12,9 @@ public class ClientHandler implements Runnable {
     PrintWriter out;
     BufferedReader in;
     String userName;
-    String password;
+    String passwd;
 
-    public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients ) throws IOException {
+    public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients) throws IOException {
         this.clientSocket = clientSocket;
         this.users = users;
         this.clients = clients;
@@ -22,27 +22,23 @@ public class ClientHandler implements Runnable {
         out = new PrintWriter(clientSocket.getOutputStream(), true);
     }
 
-    // public void sendMessage(String message) {
-    //     out.println(message);
-    // }
-
-    // public void broadcastMessage(String message) {
-    //     for (ClientHandler client : clients) {
-    //         client.sendMessage(message);
-    //     }
-    // }
-
     private void outToAll(String msg) {
         for(ClientHandler aClient : clients){
             aClient.out.println(msg);
         }
     }
 
+    private void outToClient(String msg,String uName, String pass) {
+        for(ClientHandler aClient : clients){
+            if(aClient.userName.equals(uName) && aClient.passwd.equals(pass)){
+                aClient.out.println(msg);
+            }             
+        }
+    }
+
     @Override
     public void run() {
         try {
-
-            clients.add(this);
             String request = null;
             while ((request = in.readLine()) != null) {
 
@@ -86,14 +82,9 @@ public class ClientHandler implements Runnable {
                         }
                     }
                     if (userExists) {
-                        outToAll("USER LOGGED IN SUCCESSFULLY");
                         this.userName = username;
-                        this.password = password;
-                        
-                        //String gameMode = in.readLine();
-                        outToAll("I AM ALIVEEEEE");
-    
-                        
+                        this.passwd = password;
+                        out.println("USER LOGGED IN SUCCESSFULLY");
                     } else {
                         boolean uName = false;
                         boolean pass = false;
@@ -127,8 +118,7 @@ public class ClientHandler implements Runnable {
             }
 
            
-            //clients.remove(this);
-            
+            clients.remove(this);
             in.close();
             out.close();
             clientSocket.close();
