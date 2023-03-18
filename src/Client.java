@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-public class Client {
+public class Client {    
     public static void main(String[] args) {
         String host = "localhost";
         int port = 8888;
@@ -15,8 +15,19 @@ public class Client {
             Socket socket = new Socket(host, port);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+            /////////////////////////////////////////////////////////////
+            ServerConnection serverCon = new ServerConnection(socket);
+            //START THE SERVERCON
+            new Thread(serverCon).start();
+            /////////////////////////////////////////////////////////////
+
+
+            
+            
             try (Scanner scanner = new Scanner(System.in)) {
                 while (true) {
+
                     System.out.println("Menu:");
                     System.out.println("1. Register");
                     System.out.println("2. Login");
@@ -58,7 +69,27 @@ public class Client {
                         out.println(password);
 
                         String response = in.readLine();
-                        System.out.println(response);
+                        //String response2 = in.readLine();
+
+                        //System.out.println(response);
+                        //System.out.println(response2);
+                        if (response.equals("USER LOGGED IN SUCCESSFULLY")){
+                            System.out.println();
+                            System.out.println("Choose mode: ");
+                            System.out.println("1.Single Player.");
+                            System.out.println("2.Multiplayer.");                            
+                            
+                            //SEND GAMEMODE TO CLIENT HANDLER
+                            String choice = scanner.nextLine();
+                            out.println(choice);
+                            
+                            
+
+
+                            
+
+
+                        }
                     } else if (option == 3) {
                         out.println("EXIT");
                         break;
@@ -70,7 +101,7 @@ public class Client {
 
             in.close();
             out.close();
-            socket.close();
+            //socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

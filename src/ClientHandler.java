@@ -8,22 +8,45 @@ import java.util.ArrayList;
 public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private ArrayList<User> users;
+    private ArrayList<ClientHandler> clients;
+    PrintWriter out;
+    BufferedReader in;
+    String userName;
+    String password;
 
-    public ClientHandler(Socket clientSocket, ArrayList<User> users) {
+    public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients ) throws IOException {
         this.clientSocket = clientSocket;
         this.users = users;
+        this.clients = clients;
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+    }
+
+    // public void sendMessage(String message) {
+    //     out.println(message);
+    // }
+
+    // public void broadcastMessage(String message) {
+    //     for (ClientHandler client : clients) {
+    //         client.sendMessage(message);
+    //     }
+    // }
+
+    private void outToAll(String msg) {
+        for(ClientHandler aClient : clients){
+            aClient.out.println(msg);
+        }
     }
 
     @Override
     public void run() {
         try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
 
+            clients.add(this);
             String request = null;
             while ((request = in.readLine()) != null) {
-                
-                
+
+
                 if (request.equals("REGISTER")) {
                     String name = in.readLine();
                     String username = in.readLine();
@@ -63,7 +86,14 @@ public class ClientHandler implements Runnable {
                         }
                     }
                     if (userExists) {
-                        out.println("Login successful.");
+                        outToAll("USER LOGGED IN SUCCESSFULLY");
+                        this.userName = username;
+                        this.password = password;
+                        
+                        //String gameMode = in.readLine();
+                        outToAll("I AM ALIVEEEEE");
+    
+                        
                     } else {
                         boolean uName = false;
                         boolean pass = false;
@@ -89,12 +119,16 @@ public class ClientHandler implements Runnable {
                         }
                     }
                 } else if (request.equals("EXIT")) {
+                    outToAll("ALL USERS EXIT NOW");
                     break;
                 } else {
                     out.println("Invalid request.");
                 }
             }
 
+           
+            //clients.remove(this);
+            
             in.close();
             out.close();
             clientSocket.close();
