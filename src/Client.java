@@ -74,14 +74,52 @@ public class Client {
 
                         String response = serverCon.getCurrentResponse();
                         if (response.equals("USER LOGGED IN SUCCESSFULLY")){
+                            while(true){
+                            
                             System.out.println();
                             System.out.println("Choose mode: ");
                             System.out.println("1.Single Player.");
-                            System.out.println("2.Multiplayer.");                            
+                            System.out.println("2.Multiplayer.");
+                            System.out.println("3.LogOut.");
+                                                        
+                            
                             
                             //SEND GAMEMODE TO CLIENT HANDLER
                             String choice = scanner.nextLine();
-                            out.println(choice);
+                            if(choice.equals("1") || choice.equals("2")){
+                                out.println(choice);
+                                //Thread.sleep(10000);
+                                while(!serverCon.getCurrentResponse().equals("-1")){
+                                    Thread.sleep(200);
+                                    //System.out.println();
+                                    //System.out.println(serverCon.getCurrentResponse());
+                                    //System.out.println();
+                                    String guess = serverCon.getCurrentResponse();
+                                    if(guess.equals(">")){
+                                        //System.out.println("Guess a character or the full word: ");
+                                        String wordOrChar = scanner.nextLine();
+                                        out.println(wordOrChar);
+                                        Thread.sleep(1000);
+                                    } 
+
+
+                                }
+                                serverCon.setCurrentMsg("blaaaaa");
+                            } else if(choice.equals("3")){
+                                out.println(choice);
+                                //Thread.sleep(1000);
+                                break;
+                            } else{
+                                System.out.println("ENTER CHOICES [1-3]");
+                            }
+                            
+                            
+
+
+                            
+
+                            }
+
 
                             
 

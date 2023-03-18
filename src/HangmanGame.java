@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -12,6 +14,11 @@ public class HangmanGame {
     private int attemptsLeft;
     private ArrayList<Character> wrongGuessedChars;
     private boolean gameWon;
+    
+    
+    private ClientHandler clientHandler;
+    PrintWriter out;
+    BufferedReader in;
 
     public HangmanGame() {
         //LOAD THE WORDS FROM THE FILE 
@@ -42,25 +49,65 @@ public class HangmanGame {
         gameWon = false;
     }
 
-    public void play() {
+    public HangmanGame(ClientHandler clientHandler,PrintWriter out, BufferedReader in) {
+        //LOAD THE WORDS FROM THE FILE 
+        this.clientHandler = clientHandler;
+        this.out = out;
+        this.in = in;
+        ArrayList<String> words = new ArrayList<String>();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(WORDS_FILE));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                words.add(line.toUpperCase());
+            }
+            reader.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        //SELECT RANDOM WORD FROM FILE
+        Random random = new Random();
+        //GETS A RANDOM WORDS INDEX
+        int wordIndex = random.nextInt(words.size());
+        //GETS THE WORD BY ITS INDEX
+        word = words.get(wordIndex);
+        
+        //TO DISPLAY _ _ _ _ _ TO THE USER
+        wordDisplay = word.replaceAll("[A-Z]", "_ ");
+        attemptsLeft = MAX_ATTEMPTS;
+        //STORE ALL GUESSED CHARS SO THAT YOU DONT GUESS A CHAR AGAIN
+        wrongGuessedChars = new ArrayList<Character>();
+        gameWon = false;
+    }
+
+    public void play() throws IOException {
         Scanner scanner = new Scanner(System.in);
         while (attemptsLeft > 0 && !gameWon) {
             //PRINT GAME STATUS
-            System.out.println("Word: " + wordDisplay);
+            //System.out.println("Word: " + wordDisplay);
+            out.println("Word: " + wordDisplay);
             
             //PRINT NUMBER OF ATTEMPTS
-            System.out.println("Attempts left: " + attemptsLeft);
-            
+            //System.out.println("Attempts left: " + attemptsLeft);
+            out.println("Attempts left: " + attemptsLeft);
+
             //PRINT GUESSED CHARS
-            System.out.print("Guessed characters: ");
+            //System.out.print("Guessed characters: ");
+            out.print("Guessed characters: ");
             for (char c : wrongGuessedChars) {
-                System.out.print(c + " ");
+                //System.out.print(c + " ");
+                out.print(c + " "); 
             }
-            System.out.println();
+            //System.out.println();
+            out.println();
 
             //INOPUT CHAR FROM THE USER
-            System.out.print("Guess a character or the full word: ");
-            String input = scanner.nextLine().toUpperCase();
+            //System.out.print("Guess a character or the full word: ");
+            out.println("Guess a character or the full word: ");
+            out.println(">");
+            //String input = scanner.nextLine().toUpperCase();
+            String input = in.readLine().toUpperCase();
 
             //CHECK IF THE WORD IS ALL GUESSED IT WILL BE CONSIDERED CORRECT
             if (input.equals(word)) {
@@ -90,24 +137,33 @@ public class HangmanGame {
                     attemptsLeft--;
                 } 
             }else if(input.length() != word.length() && input.length() != 1 ){
-                System.out.println();
-                System.out.println("NEXT TIME ENTER EITHER 1 [CHAR] to guess a letter OR " + word.length() + " [CHAR] to guess the word.");
-                System.out.println();
+                //System.out.println();
+                //System.out.println("NEXT TIME ENTER EITHER 1 [CHAR] to guess a letter OR " + word.length() + " [CHAR] to guess the word.");
+                //System.out.println();
+                out.println();
+                out.println("NEXT TIME ENTER EITHER 1 [CHAR] to guess a letter OR " + word.length() + " [CHAR] to guess the word.");
+                out.println();
                 attemptsLeft--;
             }
         }
 
         //GAME RESULT
-        System.out.println("The word was: " + word);
+        //System.out.println("The word was: " + word);
+        out.println("The word was: " + word);
+        
         if (gameWon) {
-            System.out.println("Congratulations, you won!");
+            //System.out.println("Congratulations, you won!");
+            out.println("Congratulations, you won!");
+            out.println("-1");
         } else {
-            System.out.println("Sorry, you lost.");
+            out.println("Sorry, you lost.");
+            out.println("-1");
+            //System.out.println("Sorry, you lost.");
         }
         scanner.close();
     }
-
-    public static void main(String[] args) {
+    
+    public static void main(String[] args) throws IOException {
         HangmanGame hangman = new HangmanGame();
         hangman.play();
     }

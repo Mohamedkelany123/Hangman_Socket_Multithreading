@@ -1,4 +1,5 @@
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -13,6 +14,7 @@ public class ClientHandler implements Runnable {
     BufferedReader in;
     String userName;
     String passwd;
+    User user;
 
     public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients) throws IOException {
         this.clientSocket = clientSocket;
@@ -60,6 +62,7 @@ public class ClientHandler implements Runnable {
                         out.println("EROR [CANNOT REGISTER USERNAME ALREADY EXISTS]");
                     } else {
                         User user = new User(name, username, password, false);
+                        this.user = user;
                         Server.addUser(user);
 
                         FileUserManager.saveUsers(users);
@@ -85,6 +88,39 @@ public class ClientHandler implements Runnable {
                         this.userName = username;
                         this.passwd = password;
                         out.println("USER LOGGED IN SUCCESSFULLY");
+
+                        ////////////////////////////////////////////////////////////////////////////
+                        //1-SINGLEPLAYER
+                        //2-MULTIPLAYER
+                        String gameMode = in.readLine();
+                        
+                        if(gameMode.equals("1")){
+                            out.println("------------- HANGMAN SINGLEPLAYER -------------");
+                            out.println("RULES:");
+                            out.println("-YOU HAVE TOTAL 6 WRONG ATTEMPTS");
+                            out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
+                            out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [6 MAX SCORE]-[0 MIN SCORE]");
+                            out.println("-WORD GUESSING ARE CASE INSENSITIVE");
+
+                            HangmanGame singlePlayer = new HangmanGame(this, out, in);
+                            singlePlayer.play();
+
+                        } else if(gameMode.equals("2")){
+
+                        } else if(gameMode.equals("3")){
+                            out.println("SAMO 3ALEKOO");
+                            for(User u: users){
+                                if(u.getName().equals(this.userName)){
+                                    u.setLoggedIn(false);
+                                }
+                            }
+                            //user.setLoggedIn(false);
+                            FileUserManager.saveUsers(users);
+                        }
+                        
+
+
+
                     } else {
                         boolean uName = false;
                         boolean pass = false;

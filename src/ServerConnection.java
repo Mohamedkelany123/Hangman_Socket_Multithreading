@@ -29,7 +29,7 @@ public class ServerConnection implements Runnable{
                 while (true) {
                 String serverResponse = in.readLine();
                 setCurrentMsg(serverResponse);
-                System.out.println("Server response: " + serverResponse);
+                System.out.println(serverResponse);
                 if (serverResponse == null) break;    
             }
         } catch (IOException e) {
