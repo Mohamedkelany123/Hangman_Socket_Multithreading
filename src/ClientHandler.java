@@ -92,6 +92,8 @@ public class ClientHandler implements Runnable {
                         ////////////////////////////////////////////////////////////////////////////
                         //1-SINGLEPLAYER
                         //2-MULTIPLAYER
+                        
+                        while(true){
                         String gameMode = in.readLine();
                         
                         if(gameMode.equals("1")){
@@ -116,8 +118,11 @@ public class ClientHandler implements Runnable {
                             }
                             //user.setLoggedIn(false);
                             FileUserManager.saveUsers(users);
+                            break;
                         }
-                        
+                    }
+                    
+                    
 
 
 

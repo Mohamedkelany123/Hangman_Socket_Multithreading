@@ -33,9 +33,8 @@ public class FileUserManager {
                     String password = tokens[2];
                     boolean loggedIn = Boolean.parseBoolean(tokens[3]);
                     double scoreHistory = Double.parseDouble(tokens[4]);
-                    int attempts = Integer.parseInt(tokens[5]);
                     
-                    User user = new User(name, username, password, loggedIn, scoreHistory, attempts);
+                    User user = new User(name, username, password, loggedIn, scoreHistory);
                     users.add(user);
                 }
                 reader.close();
@@ -57,7 +56,7 @@ public class FileUserManager {
             writer.write("0,0,0,true,0.0,0\n");
             for (User user : users) {
                 
-                String line = user.getName() + "," + user.getUsername() + "," + user.getPassword() + "," + user.isLoggedIn() + "," + user.getScoreHistory() + "," + user.getAttempts();
+                String line = user.getName() + "," + user.getUsername() + "," + user.getPassword() + "," + user.isLoggedIn() + "," + user.getScoreHistory();
                 
                 
                 writer.write(line);

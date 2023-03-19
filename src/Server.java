@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private static ArrayList<User> users = FileUserManager.loadUsers();
     private static ArrayList<ClientHandler> clients = new ArrayList<>();
-    private static ExecutorService pool = Executors.newFixedThreadPool(10);
+    private static ExecutorService pool = Executors.newFixedThreadPool(20);
 
     public static void main(String[] args) {
         int port = 8888;

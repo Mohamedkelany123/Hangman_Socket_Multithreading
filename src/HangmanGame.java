@@ -83,6 +83,7 @@ public class HangmanGame {
 
     public void play() throws IOException {
         Scanner scanner = new Scanner(System.in);
+        String input= " ";
         while (attemptsLeft > 0 && !gameWon) {
             //PRINT GAME STATUS
             //System.out.println("Word: " + wordDisplay);
@@ -107,11 +108,13 @@ public class HangmanGame {
             out.println("Guess a character or the full word: ");
             out.println(">");
             //String input = scanner.nextLine().toUpperCase();
-            String input = in.readLine().toUpperCase();
+            input = in.readLine().toUpperCase();
 
             //CHECK IF THE WORD IS ALL GUESSED IT WILL BE CONSIDERED CORRECT
             if (input.equals(word)) {
                 gameWon = true;
+                break;
+            } else if(input.equals("-")){
                 break;
             }
 
@@ -153,12 +156,14 @@ public class HangmanGame {
         
         if (gameWon) {
             //System.out.println("Congratulations, you won!");
-            out.println("Congratulations, you won!");
+            out.println("----------------------------------Congratulations, you won!----------------------------------");
+            out.println("-1");
+        }else if(input.equals("-")){
+            out.println("----------------------------------EXITTING GAME NOW----------------------------------");
             out.println("-1");
         } else {
-            out.println("Sorry, you lost.");
+            out.println("----------------------------------Sorry, you lost.----------------------------------");
             out.println("-1");
-            //System.out.println("Sorry, you lost.");
         }
         scanner.close();
     }

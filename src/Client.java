@@ -85,6 +85,7 @@ public class Client {
                             
                             
                             //SEND GAMEMODE TO CLIENT HANDLER
+                            System.out.print("Enter Mode: ");
                             String choice = scanner.nextLine();
                             if(choice.equals("1") || choice.equals("2")){
                                 out.println(choice);

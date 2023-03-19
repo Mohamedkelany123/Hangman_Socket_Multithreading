@@ -4,7 +4,6 @@ public class User {
     private String password;
     private boolean loggedin;
     private double scoreHistory;
-    private int attempts;
     public Object out;
 
     public User(String name, String username, String password, boolean loggedIn) {
@@ -13,18 +12,16 @@ public class User {
         this.password = password;
         this.loggedin = loggedIn;
         this.scoreHistory = 0;
-        this.attempts = 6;
     }
 
 
     
-    public User(String name, String username, String password, boolean loggedIn, double scoreHistory, int attempts) {
+    public User(String name, String username, String password, boolean loggedIn, double scoreHistory) {
         this.name = name;
         this.username = username;
         this.password = password;
         this.loggedin = loggedIn;
         this.scoreHistory = scoreHistory;
-        this.attempts = attempts;
     }
 
     public double getScoreHistory() {
@@ -33,20 +30,6 @@ public class User {
 
     public void setScoreHistory(double score) {
         this.scoreHistory += score;
-    }
-
-    public int getAttempts() {
-        return attempts;
-    }
-
-    public void setAttempts(int attempts) {
-        this.attempts = attempts;
-    }
-
-    public void reduceAttempts(){
-        if(this.attempts != 0){
-            this.attempts -= 1;
-        }
     }
     
     public String getName() {
