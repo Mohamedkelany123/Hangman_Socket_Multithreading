@@ -32,7 +32,7 @@ public class FileUserManager {
                     String username = tokens[1];
                     String password = tokens[2];
                     boolean loggedIn = Boolean.parseBoolean(tokens[3]);
-                    double scoreHistory = Double.parseDouble(tokens[4]);
+                    String scoreHistory = tokens[4];
                     
                     User user = new User(name, username, password, loggedIn, scoreHistory);
                     users.add(user);

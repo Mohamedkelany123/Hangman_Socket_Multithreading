@@ -1,5 +1,4 @@
 import java.io.BufferedReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
@@ -36,6 +35,15 @@ public class ClientHandler implements Runnable {
                 aClient.out.println(msg);
             }             
         }
+    }
+
+    public User getUser(){
+        for(User u: users){
+                 if(u.getUsername().equals(this.userName) && u.getPassword().equals(this.passwd)){
+                     return u;
+                 }
+             }
+             return null;
     }
 
     @Override
@@ -106,13 +114,15 @@ public class ClientHandler implements Runnable {
 
                             HangmanGame singlePlayer = new HangmanGame(this, out, in);
                             singlePlayer.play();
+                            
+                            FileUserManager.saveUsers(users);
 
                         } else if(gameMode.equals("2")){
 
                         } else if(gameMode.equals("3")){
-                            out.println("SAMO 3ALEKOO");
+                            //out.println("SAMO 3ALEKOO");
                             for(User u: users){
-                                if(u.getName().equals(this.userName)){
+                                if(u.getUsername().equals(this.userName) && u.getPassword().equals(this.passwd)){
                                     u.setLoggedIn(false);
                                 }
                             }
@@ -164,6 +174,9 @@ public class ClientHandler implements Runnable {
             out.close();
             clientSocket.close();
         } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }

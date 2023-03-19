@@ -3,7 +3,7 @@ public class User {
     private String username;
     private String password;
     private boolean loggedin;
-    private double scoreHistory;
+    private String scoreHistory;
     public Object out;
 
     public User(String name, String username, String password, boolean loggedIn) {
@@ -11,12 +11,12 @@ public class User {
         this.username = username;
         this.password = password;
         this.loggedin = loggedIn;
-        this.scoreHistory = 0;
+        this.scoreHistory = "History:  ";
     }
 
 
     
-    public User(String name, String username, String password, boolean loggedIn, double scoreHistory) {
+    public User(String name, String username, String password, boolean loggedIn, String scoreHistory) {
         this.name = name;
         this.username = username;
         this.password = password;
@@ -24,12 +24,12 @@ public class User {
         this.scoreHistory = scoreHistory;
     }
 
-    public double getScoreHistory() {
+    public String getScoreHistory() {
         return scoreHistory;
     }
 
-    public void setScoreHistory(double score) {
-        this.scoreHistory += score;
+    public void setScoreHistory(String score) {
+        this.scoreHistory = this.scoreHistory.concat(score);
     }
     
     public String getName() {

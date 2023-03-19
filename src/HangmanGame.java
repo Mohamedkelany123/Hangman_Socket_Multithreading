@@ -81,7 +81,7 @@ public class HangmanGame {
         gameWon = false;
     }
 
-    public void play() throws IOException {
+    public void play() throws IOException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
         String input= " ";
         while (attemptsLeft > 0 && !gameWon) {
@@ -157,18 +157,26 @@ public class HangmanGame {
         if (gameWon) {
             //System.out.println("Congratulations, you won!");
             out.println("----------------------------------Congratulations, you won!----------------------------------");
-            out.println("-1");
+            out.println("--");
+            String score = "SinglePlayer: " + attemptsLeft + "--";
+            clientHandler.getUser().setScoreHistory(score);
+            //return score;
         }else if(input.equals("-")){
             out.println("----------------------------------EXITTING GAME NOW----------------------------------");
-            out.println("-1");
+            out.println("--");
+            clientHandler.getUser().setScoreHistory("SinglePlayer:EXITTED--");
+            //return "SinglePlayer:EXITTED";
         } else {
             out.println("----------------------------------Sorry, you lost.----------------------------------");
-            out.println("-1");
+            out.println("--");
+            Thread.sleep(500);
+            clientHandler.getUser().setScoreHistory("SinglePlayer:0--");
+            //return "SinglePlayer:0";
         }
-        scanner.close();
+        //scanner.close();
     }
     
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         HangmanGame hangman = new HangmanGame();
         hangman.play();
     }

@@ -90,7 +90,7 @@ public class Client {
                             if(choice.equals("1") || choice.equals("2")){
                                 out.println(choice);
                                 //Thread.sleep(10000);
-                                while(!serverCon.getCurrentResponse().equals("-1")){
+                                while(!serverCon.getCurrentResponse().equals("--")){
                                     Thread.sleep(200);
                                     //System.out.println();
                                     //System.out.println(serverCon.getCurrentResponse());
