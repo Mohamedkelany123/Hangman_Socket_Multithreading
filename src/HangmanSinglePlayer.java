@@ -114,7 +114,7 @@ public class HangmanSinglePlayer {
             clientHandler.inGame = false;
         }else if(input.equals("-")){
             clientHandler.out.println("SCORE: LOSER");
-            clientHandler.out.println("----------------------------------EXITTING GAME NOW----------------------------------");
+            clientHandler.out.println("----------------------------------EXITTING GAME NOW :| ----------------------------------");
             clientHandler.out.println("--");
             Thread.sleep(500);
             clientHandler.getUser().setScoreHistory("SinglePlayer:EXITTED--");

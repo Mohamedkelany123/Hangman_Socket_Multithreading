@@ -97,7 +97,6 @@ public class Client {
                                         while(!serverCon.getCurrentResponse().equals("--")){
                                             Thread.sleep(100);
                                             String guess = serverCon.getCurrentResponse();
-                                            serverCon.setCurrentMsg(response);
                                             if(guess.equals(">")){
                                                 String wordOrChar = scanner.nextLine();
                                                 out.println(wordOrChar);
@@ -111,7 +110,7 @@ public class Client {
                                         out.println(choice);
                                         break;
                                     } else{
-                                        System.out.println("ENTER CHOICES [1-3]");
+                                        System.out.println("ENTER CHOICES [1-3]:");
                                     }
                             }
                         }

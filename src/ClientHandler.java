@@ -15,6 +15,17 @@ public class ClientHandler implements Runnable {
     String userName;
     String passwd;
     User user;
+    private int score = 0;
+    public int controllerIndex = 1;
+    public boolean won = false;
+
+    public int getScore(){
+        return score;
+    }
+    
+    public void incrementScore(){
+        score = score+1;
+    }
 
     public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients) throws IOException {
         this.clientSocket = clientSocket;
@@ -136,6 +147,7 @@ public class ClientHandler implements Runnable {
                             out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
                             out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [10 MAX SCORE]-[0 MIN SCORE]");
                             out.println("-WORD GUESSING ARE CASE INSENSITIVE");
+                            out.println("---------------------------------------------------------------------------------------");
 
                             HangmanSinglePlayer singlePlayer = new HangmanSinglePlayer();
                             singlePlayer.singlePlay(this);
@@ -146,12 +158,20 @@ public class ClientHandler implements Runnable {
                             out.println("RULES:");
                             out.println("-YOU HAVE TOTAL 10 WRONG ATTEMPTS");
                             out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
-                            out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [10 MAX SCORE]-[0 MIN SCORE]");
                             out.println("-WORD GUESSING ARE CASE INSENSITIVE");
-                            out.println("-PLAYER WITH HEIGHEST SCORE WINS");
+                            out.println("-FIRST PLAYER TO GUESS THE WORD CORRECT WINS");
+                            out.println("---------------------------------------------------------------------------------------");
                             
-                            //HangManMultiPlayer multiPlayer = new HangManMultiPlayer();
-                            HangManMultiPlayer.OnevOne(this);
+                            HangManMultiPlayer multiPlayer = new HangManMultiPlayer(this);
+                            inGame = true;
+                            while(inGame){
+                                
+                                if(controllerIndex==1){
+                                    multiPlayer.OnevOne();
+                                }
+
+                                Thread.sleep(400);
+                            }
                             FileUserManager.saveUsers(users);
 
                         } else if(gameMode.equals("3")){

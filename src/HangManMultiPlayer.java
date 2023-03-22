@@ -13,9 +13,16 @@ public class HangManMultiPlayer {
     private static ArrayList<Character> wrongGuessedChars;
     private static boolean gameWon;
     private static ArrayList<ClientHandler> OnevOne = new ArrayList<>();
+    private ClientHandler clientHandler;
+    private static int OnevOneCounter = 0;
     private static ArrayList<ClientHandler> TwovTwo = new ArrayList<>();
 
-    public HangManMultiPlayer() {
+    public HangManMultiPlayer(ClientHandler clientHandler) {
+        OnevOne.add(clientHandler);
+        if(OnevOne.size() == 2){
+            OnevOne.get(1).controllerIndex = 3;
+        }
+        this.clientHandler = clientHandler;
         //LOAD THE WORDS FROM THE FILE 
         ArrayList<String> words = new ArrayList<String>();
         try {
@@ -44,63 +51,31 @@ public class HangManMultiPlayer {
         gameWon = false;
     }
 
-    public static void OnevOne(ClientHandler clientHandler) throws IOException, InterruptedException{
-        clientHandler.clientPrint(clientHandler.userName);
-        OnevOne.add(clientHandler);
-        
-        while(OnevOne.size() != 2){
+    public void OnevOne() throws IOException, InterruptedException{
+        while(OnevOne.size() <2){
+            OnevOne.get(0).out.println("WAITING FOR PLAYER 2.....");
             Thread.sleep(500);
-            clientHandler.out.println("WAITING FOR PLAYER2 ........");
         }
-        //}
-        // for(int i=0;i<OnevOne.size();i++){
-        //     OnevOne.get(i).clientPrint(OnevOne.get(i).userName + "-----------------["+ i + "]");
-        // }
 
-        clientHandler.outToAll(OnevOne, "---------------GAME STARTS NOW---------");
-        clientHandler.outToAll(OnevOne, "PLAYER 1["+OnevOne.get(0).userName);
-        clientHandler.outToAll(OnevOne, "PLAYER 2["+OnevOne.get(2).userName);
-        //int playerOneScore = 
-        //MultiPlay(OnevOne.get(1));
-        //MultiPlay(OnevOne.get(0));
-        
-        //int playerTwoScore = MultiPlay(OnevOne.get(1));
-        
-        OnevOne.get(0).out.println("-PLAYER 1[" + OnevOne.get(0).userName +"] SCORE = " + OnevOne.size());
-        OnevOne.get(1).out.println("-PLAYER 2[" + OnevOne.get(1).userName +"] SCORE = " + OnevOne.size());
-        //Thread.sleep(2000);
-        //OnevOne.get(0).clientPrint("-PLAYER 1[" + OnevOne.get(0).userName +"] SCORE = " );
-        //clientHandler.out.println("-PLAYER 1[" + OnevOne.get(0).userName +"] SCORE = " );
-        clientHandler.out.println("--");
-        //OnevOne.get(1).outToAll(OnevOne, "-PLAYER 2[" + OnevOne.get(1).userName +"] SCORE = " + playerTwoScore);
+        MultiPlay(OnevOne);
 
-
-        //if(playerOneScore>playerTwoScore){
-            //OnevOne.get(0).out.println("---------------------------- YOU WONNNN :) ---------------------");
-            //OnevOne.get(1).out.println("---------------------------- YOU LOST :( ---------------------");
-        //} else if(playerOneScore<playerTwoScore){
-           // OnevOne.get(1).out.println("---------------------------- YOU WONNNN :) ---------------------");
-            //OnevOne.get(0).out.println("---------------------------- YOU LOST :( ---------------------");
-        //} else{
-         //   OnevOne.get(0).outToAll(OnevOne, "--------------------- TIE ----------------------");
-        //}
-
-
-        
-
-
-
+        //clientHandler.out.println("--");
+        OnevOne.get(0).outToAll(OnevOne, "--");
+        Thread.sleep(500);
+        OnevOne.get(0).inGame = false;
+        OnevOne.get(1).inGame = false;
     }
 
 
 
-    public static void MultiPlay( ArrayList<ClientHandler> clients) throws IOException, InterruptedException {
+    public void MultiPlay( ArrayList<ClientHandler> clients) throws IOException, InterruptedException {
         String input= " ";
         int index=0;
         ClientHandler clientHandler;
         for(ClientHandler c: clients){
              c.inGame = true;
         }
+
         while (attemptsLeft > 0 && !gameWon) {
             if(index == 0){
                 clientHandler = clients.get(index);
@@ -110,26 +85,29 @@ public class HangManMultiPlayer {
         
             //PRINT GAME STATUS
             //clientHandler.out.println("Word: " + wordDisplay);
-            
+            clientHandler.outToAll(clients, "Word: " + wordDisplay);
             
             //PRINT NUMBER OF ATTEMPTS
-            clientHandler.out.println("Attempts left: " + attemptsLeft);
+            clientHandler.outToAll(clients,"Attempts left: " + attemptsLeft);
 
             //PRINT GUESSED CHARS
-            clientHandler.out.print("Guessed characters: ");
+            clientHandler.outToAll(clients,"Guessed characters: ");
             for (char c : wrongGuessedChars) {
-                clientHandler.out.print(c + " "); 
+                clientHandler.outToAll(clients,c + " "); 
             }
-            clientHandler.out.println();
-
+            clientHandler.outToAll(clients,"-------------"); 
+            clientHandler.outToAll(clients," ");
+            clientHandler.outToAll(clients,"Player Turn: " + clientHandler.userName);
             //INOPUT CHAR FROM THE USER
             clientHandler.out.println("Guess a character or the full word: ");
             clientHandler.out.println(">");
             input = clientHandler.in.readLine().toUpperCase();
+            index = (index+1) % 2;
 
             //CHECK IF THE WORD IS ALL GUESSED IT WILL BE CONSIDERED CORRECT
             if (input.equals(word)) {
                 gameWon = true;
+                clientHandler.won = true;
                 break;
             } else if(input.equals("-")){
                 break;
@@ -163,34 +141,50 @@ public class HangManMultiPlayer {
                 attemptsLeft--;
             }
         }
-    }
+  
 
         //GAME RESULT
-        clientHandler.out.println("The word was: " + word);
+        //clientHandler.out.println("The word was: " + word);
+        OnevOne.get(0).outToAll(clients, "The word was: " + word);
         
         if (gameWon) {
-            clientHandler.out.println("----------------------------------Congratulations, you won!----------------------------------");
-            clientHandler.out.println("--");
-            String score = "MultiPlayer: " + attemptsLeft + "--";
-            clientHandler.getUser().setScoreHistory(score);
-            clientHandler.inGame = false;
-            //return attemptsLeft;
-        }else if(input.equals("-")){
-            clientHandler.out.println("----------------------------------EXITTING GAME NOW----------------------------------");
-            //clientHandler.out.println("--");
-            clientHandler.getUser().setScoreHistory("MultiPlayer:EXITTED--");
-            clientHandler.inGame = false;
-            //////////////////////////////////HANDLE IF ONE EXXITED////////////////////
-           // return 100;
-        } else {
-            clientHandler.out.println("----------------------------------Sorry, you lost.----------------------------------");
-            //clientHandler.out.println("--");
-            Thread.sleep(500);
-            clientHandler.getUser().setScoreHistory("MultiPlayer:0--");
-            for(ClientHandler c: clients){
-                c.inGame = false;
+            for(ClientHandler c : clients){
+                if(c.won == true){
+                    c.out.println("----------------------------------Congratulations, you won :) ----------------------------------");
+                    String score = "MultiPlayer: " + "WON" + "--";
+                    c.getUser().setScoreHistory(score);
+                }else{
+                    c.out.println("----------------------------------Sorry, you lost :( ----------------------------------");
+                    String score = "MultiPlayer: " + "LOST" + "--";
+                    c.getUser().setScoreHistory(score);
+                }
+                
             }
+
+
+
+            // clientHandler.out.println("----------------------------------Congratulations, you won!----------------------------------");
+            // clientHandler.out.println("--");
+            // String score = "MultiPlayer: " + attemptsLeft + "--";
+            // clientHandler.getUser().setScoreHistory(score);
+            // clientHandler.inGame = false;
+            //return attemptsLeft;
+        }
+        //else if(input.equals("-")){
+        //     clientHandler.out.println("----------------------------------EXITTING GAME NOW----------------------------------");
+        //     //clientHandler.out.println("--");
+        //     clientHandler.getUser().setScoreHistory("MultiPlayer:EXITTED--");
+        //     clientHandler.inGame = false;
+        //     //////////////////////////////////HANDLE IF ONE EXXITED////////////////////
+        //    // return 100;
+        // } else {
+        //     clientHandler.out.println("----------------------------------Sorry, you lost.----------------------------------");
+        //     //clientHandler.out.println("--");
+        //     Thread.sleep(500);
+        //     clientHandler.getUser().setScoreHistory("MultiPlayer:0--");
+        //     for(ClientHandler c: clients){
+        //         c.inGame = false;
+        //     }
            // return 0;
         }
     }
-}
