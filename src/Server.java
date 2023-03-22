@@ -52,8 +52,4 @@ public class Server {
     public static void addClient(ClientHandler client) {
         clients.add(client);
     }
-
-   
-
-    
 }

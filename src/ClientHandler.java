@@ -9,8 +9,9 @@ public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private ArrayList<User> users;
     private ArrayList<ClientHandler> clients;
-    PrintWriter out;
-    BufferedReader in;
+    public boolean inGame;
+    public PrintWriter out;
+    public BufferedReader in;
     String userName;
     String passwd;
     User user;
@@ -21,10 +22,11 @@ public class ClientHandler implements Runnable {
         this.clients = clients;
         in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
         out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.inGame = false;
     }
 
-    private void outToAll(String msg) {
-        for(ClientHandler aClient : clients){
+    public void outToAll(ArrayList<ClientHandler> Clients, String msg) {
+        for(ClientHandler aClient : Clients){
             aClient.out.println(msg);
         }
     }
@@ -46,14 +48,28 @@ public class ClientHandler implements Runnable {
              return null;
     }
 
+    public void clientPrint(String msg){
+        out.println(msg);
+    }
+
     @Override
     public void run() {
         try {
             String request = null;
-            while ((request = in.readLine()) != null) {
+            // while ((request = in.readLine()) != null)
+            while(true) {
 
+                
+                out.println("Menu:");
+                out.println("1. Register");
+                out.println("2. Login");
+                out.println("3. Exit");
+                out.println("Choose an option: ");
+                request = in.readLine();
 
                 if (request.equals("REGISTER")) {
+                    out.println("Enter (name,Username,password) comma seperated:");
+                    
                     String name = in.readLine();
                     String username = in.readLine();
                     String password = in.readLine();
@@ -69,9 +85,8 @@ public class ClientHandler implements Runnable {
                     if (userExists) {
                         out.println("EROR [CANNOT REGISTER USERNAME ALREADY EXISTS]");
                     } else {
-                        User user = new User(name, username, password, false);
-                        this.user = user;
-                        Server.addUser(user);
+                        User u = new User(name, username, password, false);
+                        Server.addUser(u);
 
                         FileUserManager.saveUsers(users);
 
@@ -80,6 +95,7 @@ public class ClientHandler implements Runnable {
                     }
                 } 
                 else if (request.equals("LOGIN")) {
+                    out.println("Enter (Username,Password) comma seperated:");
                     String username = in.readLine();
                     String password = in.readLine();
                     boolean userExists = false;
@@ -96,37 +112,51 @@ public class ClientHandler implements Runnable {
                         this.userName = username;
                         this.passwd = password;
                         out.println("USER LOGGED IN SUCCESSFULLY");
+                        Thread.sleep(300);
 
                         ////////////////////////////////////////////////////////////////////////////
                         //1-SINGLEPLAYER
                         //2-MULTIPLAYER
                         
-                        while(true){
+                    while(true){
+                        out.println();
+                        out.println("Choose mode: ");
+                        out.println("1.Single Player.");
+                        out.println("2.Multiplayer.");
+                        out.println("3.LogOut.");  
+                        out.println("Enter Mode: ");  
+                        Thread.sleep(100);
+                        
                         String gameMode = in.readLine();
                         
                         if(gameMode.equals("1")){
                             out.println("------------- HANGMAN SINGLEPLAYER -------------");
                             out.println("RULES:");
-                            out.println("-YOU HAVE TOTAL 6 WRONG ATTEMPTS");
+                            out.println("-YOU HAVE TOTAL 10 WRONG ATTEMPTS");
                             out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
-                            out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [6 MAX SCORE]-[0 MIN SCORE]");
+                            out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [10 MAX SCORE]-[0 MIN SCORE]");
                             out.println("-WORD GUESSING ARE CASE INSENSITIVE");
 
-                            HangmanGame singlePlayer = new HangmanGame(this, out, in);
-                            singlePlayer.play();
-                            
+                            HangmanSinglePlayer singlePlayer = new HangmanSinglePlayer();
+                            singlePlayer.singlePlay(this);
                             FileUserManager.saveUsers(users);
 
                         } else if(gameMode.equals("2")){
+                            out.println("------------- HANGMAN ONE VS ONE -------------");
+                            out.println("RULES:");
+                            out.println("-YOU HAVE TOTAL 10 WRONG ATTEMPTS");
+                            out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
+                            out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [10 MAX SCORE]-[0 MIN SCORE]");
+                            out.println("-WORD GUESSING ARE CASE INSENSITIVE");
+                            out.println("-PLAYER WITH HEIGHEST SCORE WINS");
+                            
+                            //HangManMultiPlayer multiPlayer = new HangManMultiPlayer();
+                            HangManMultiPlayer.OnevOne(this);
+                            FileUserManager.saveUsers(users);
 
                         } else if(gameMode.equals("3")){
-                            //out.println("SAMO 3ALEKOO");
-                            for(User u: users){
-                                if(u.getUsername().equals(this.userName) && u.getPassword().equals(this.passwd)){
-                                    u.setLoggedIn(false);
-                                }
-                            }
-                            //user.setLoggedIn(false);
+                            user = getUser();
+                            user.setLoggedIn(false);
                             FileUserManager.saveUsers(users);
                             break;
                         }
@@ -161,7 +191,6 @@ public class ClientHandler implements Runnable {
                         }
                     }
                 } else if (request.equals("EXIT")) {
-                    outToAll("ALL USERS EXIT NOW");
                     break;
                 } else {
                     out.println("Invalid request.");
@@ -174,10 +203,12 @@ public class ClientHandler implements Runnable {
             out.close();
             clientSocket.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("CLIENT EXITED: " + clientSocket);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println("CLIENT CONNECTION ABORTED: " + clientSocket);
         }
     }
 }

@@ -5,6 +5,7 @@ public class User {
     private boolean loggedin;
     private String scoreHistory;
     public Object out;
+    
 
     public User(String name, String username, String password, boolean loggedIn) {
         this.name = name;

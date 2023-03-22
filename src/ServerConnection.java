@@ -7,7 +7,7 @@ public class ServerConnection implements Runnable{
 
     private Socket server;
     private BufferedReader in;
-    private String currentResponse;
+    private String currentResponse = " ";
 
     //HANDLES INPUT FROM THE SERVER
     public ServerConnection(Socket s) throws IOException{
@@ -28,8 +28,8 @@ public class ServerConnection implements Runnable{
         try {
                 while (true) {
                 String serverResponse = in.readLine();
-                setCurrentMsg(serverResponse);
                 System.out.println(serverResponse);
+                setCurrentMsg(serverResponse);
                 if (serverResponse == null) break;    
             }
         } catch (IOException e) {

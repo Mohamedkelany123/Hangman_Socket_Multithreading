@@ -3,7 +3,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client {    
@@ -28,109 +27,101 @@ public class Client {
             try (Scanner scanner = new Scanner(System.in)) {
                 while (true) {
 
-                    System.out.println("Menu:");
-                    System.out.println("1. Register");
-                    System.out.println("2. Login");
-                    System.out.println("3. Exit");
-                    System.out.print("Choose an option: ");
-                    int option = 0;
+                    String option;
+                    Thread.sleep(100);
                     //TRY CATCH TO HANDLE IF THE USER ENTERED CHAR FOR THE INT INPUT
-                    try{
-                        option = scanner.nextInt();
-                    }catch (InputMismatchException e) {
-                        e.printStackTrace();
-                        System.err.println("Entered value is not an integer");
-                      }
-                    scanner.nextLine();
+                    if(serverCon.getCurrentResponse().equals("Choose an option: ")){
+                        
+                        option = scanner.nextLine();
+                    
 
-                    if (option == 1) {
-                        System.out.print("Enter name: ");
-                        String name = scanner.nextLine();
-                        System.out.print("Enter username: ");
-                        String username = scanner.nextLine();
-                        System.out.print("Enter password: ");
-                        String password = scanner.nextLine();
-
+                    if (option.equals("1")) {
                         out.println("REGISTER");
+                        Thread.sleep(100);
+                        if(serverCon.getCurrentResponse().equals("Enter (name,Username,password) comma seperated:")){
+                        
+                        String[] arrOfStr;
+                        while(true){
+                            String userInformation = scanner.nextLine();
+                            arrOfStr = userInformation.split(",", 5);
+                            if(arrOfStr.length == 3){
+                                break;
+                            }else{
+                                System.out.println("ENTER (NAME,USERNAME,PASSWORD) COMMA SEPERATED:");
+                            }
+                        }
+
+                        String name = arrOfStr[0];
+                        String username = arrOfStr[1];
+                        String password = arrOfStr[2];
+
                         out.println(name);
                         out.println(username);
                         out.println(password);
 
                         //TO WAIT FOR SERVER RESPONSE
-                        Thread.sleep(500);
-
-                    } else if (option == 2) {
-                        System.out.print("Enter username: ");
-                        String username = scanner.nextLine();
-                        System.out.print("Enter password: ");
-                        String password = scanner.nextLine();
-
+                        Thread.sleep(200);
+                        }
+                    } else if (option.equals("2")) {
                         out.println("LOGIN");
+                        Thread.sleep(100);
+
+                        String[] arrOfStr;
+                        while(true){
+                            String userInformation = scanner.nextLine();
+                            arrOfStr = userInformation.split(",", 5);
+                            if(arrOfStr.length == 2){
+                                break;
+                            }else{
+                                System.out.println("ENTER (USERNAME,PASSWORD) COMMA SEPERATED:");
+                            }
+                        }
+                        
+                        String username = arrOfStr[0];
+                        String password = arrOfStr[1];
+
                         out.println(username);
                         out.println(password);
 
                         //TO WAIT FOR SERVER RESPONSE
-                        Thread.sleep(500);
-
+                        Thread.sleep(100);
                         String response = serverCon.getCurrentResponse();
                         if (response.equals("USER LOGGED IN SUCCESSFULLY")){
+                            
                             while(true){
-                            
-                            System.out.println();
-                            System.out.println("Choose mode: ");
-                            System.out.println("1.Single Player.");
-                            System.out.println("2.Multiplayer.");
-                            System.out.println("3.LogOut.");
-                                                        
-                            
-                            
-                            //SEND GAMEMODE TO CLIENT HANDLER
-                            System.out.print("Enter Mode: ");
-                            String choice = scanner.nextLine();
-                            if(choice.equals("1") || choice.equals("2")){
-                                out.println(choice);
-                                //Thread.sleep(10000);
-                                while(!serverCon.getCurrentResponse().equals("--")){
-                                    Thread.sleep(200);
-                                    //System.out.println();
-                                    //System.out.println(serverCon.getCurrentResponse());
-                                    //System.out.println();
-                                    String guess = serverCon.getCurrentResponse();
-                                    if(guess.equals(">")){
-                                        //System.out.println("Guess a character or the full word: ");
-                                        String wordOrChar = scanner.nextLine();
-                                        out.println(wordOrChar);
-                                        Thread.sleep(1000);
-                                    } 
+                            Thread.sleep(100);
+                                if(serverCon.getCurrentResponse().equals("Enter Mode: ")){
+                                    String choice = scanner.nextLine();
+                                    if(choice.equals("1") || choice.equals("2")){
+                                        out.println(choice);
+                                        while(!serverCon.getCurrentResponse().equals("--")){
+                                            Thread.sleep(100);
+                                            String guess = serverCon.getCurrentResponse();
+                                            serverCon.setCurrentMsg(response);
+                                            if(guess.equals(">")){
+                                                String wordOrChar = scanner.nextLine();
+                                                out.println(wordOrChar);
+                                                Thread.sleep(500);
+                                            } 
 
 
-                                }
-                                serverCon.setCurrentMsg("blaaaaa");
-                            } else if(choice.equals("3")){
-                                out.println(choice);
-                                //Thread.sleep(1000);
-                                break;
-                            } else{
-                                System.out.println("ENTER CHOICES [1-3]");
+                                        }
+                                        serverCon.setCurrentMsg("blaaaaa");
+                                    } else if(choice.equals("3")){
+                                        out.println(choice);
+                                        break;
+                                    } else{
+                                        System.out.println("ENTER CHOICES [1-3]");
+                                    }
                             }
-                            
-                            
-
-
-                            
-
-                            }
-
-
-                            
-
-
                         }
-                    } else if (option == 3) {
+                        }
+                    } else if (option.equals("3")) {
                         out.println("EXIT");
                         break;
                     } else {
-                        System.out.println("Invalid option.");
+                        System.out.println("ENTER CHOICE BETWEEN [1-3]:");
+                    }
                     }
                 }
             }
