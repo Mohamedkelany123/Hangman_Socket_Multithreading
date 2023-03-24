@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import javax.swing.plaf.synth.SynthSeparatorUI;
+
 public class Client {    
     public static void main(String[] args) throws InterruptedException {
         String host = "localhost";
@@ -87,13 +89,17 @@ public class Client {
                         Thread.sleep(100);
                         String response = serverCon.getCurrentResponse();
                         if (response.equals("USER LOGGED IN SUCCESSFULLY")){
-                            
+                            //1. SINGLEPLAYER
+                            //2. MULTIPLAYER
+                            //3. LOGOUT
                             while(true){
-                            Thread.sleep(100);
+                                Thread.sleep(100);
                                 if(serverCon.getCurrentResponse().equals("Enter Mode: ")){
                                     String choice = scanner.nextLine();
-                                    if(choice.equals("1") || choice.equals("2")){
+                                    
+                                    if(choice.equals("1")){
                                         out.println(choice);
+
                                         while(!serverCon.getCurrentResponse().equals("--")){
                                             Thread.sleep(100);
                                             String guess = serverCon.getCurrentResponse();
@@ -106,7 +112,105 @@ public class Client {
 
                                         }
                                         serverCon.setCurrentMsg("blaaaaa");
-                                    } else if(choice.equals("3")){
+                                    } else if(choice.equals("2")){
+                                        out.println(choice);
+                                        //MULTIPLAYER MENU
+                                        //1- CREATE TEAM
+                                        //2- JOIN EXISTING TEAM
+                                        //3- JOIN RANDOM TEAM 
+                                        while(true){
+                                            if(serverCon.getCurrentResponse().equals("Enter Mode:")){
+                                                String choice2 = scanner.nextLine();
+
+
+                                                //CREATE TEAM
+                                                if(choice2.equals("1")){
+                                                    out.println(choice2);
+                                                    Thread.sleep(300);
+
+                                                    if(serverCon.getCurrentResponse().equals("Enter Team Name: ")){
+                                                        String name = scanner.nextLine();
+                                                        out.println(name);
+                                                        Thread.sleep(300);
+                                                    }
+                                                    if(serverCon.getCurrentResponse().equals("Enter number of team members: ")){
+                                                        String number = scanner.nextLine();
+                                                        out.println(number);
+                                                        Thread.sleep(300);
+                                                    }
+
+                                                    if(!serverCon.getCurrentResponse().equals("--------------- 2 TEAMS ALREADY CREATED --------------")){
+                                                        while(!serverCon.getCurrentResponse().equals("--")){
+                                                            Thread.sleep(100);
+                                                            String guess = serverCon.getCurrentResponse();
+                                                            if(guess.equals(">")){
+                                                                String wordOrChar = scanner.nextLine();
+                                                                out.println(wordOrChar);
+                                                                Thread.sleep(500);
+                                                            } 
+                                                        }
+                                                        break;
+                                                    }
+
+        
+
+                                                    
+                                                    
+                                                //JOIN EXISTING TEAM
+                                                }else if(choice2.equals("2")){
+                                                    out.println(choice2);
+                                                    Thread.sleep(300);
+
+                                                    if(serverCon.getCurrentResponse().equals("Enter Team Name: ")){
+                                                        String name = scanner.nextLine();
+                                                        out.println(name);
+                                                        Thread.sleep(300);
+                                                    }
+
+                                                    if(!serverCon.getCurrentResponse().equals("Enter Mode:")){
+                                                        while(!serverCon.getCurrentResponse().equals("--")){
+                                                            Thread.sleep(100);
+                                                            String guess = serverCon.getCurrentResponse();
+                                                            if(guess.equals(">")){
+                                                                String wordOrChar = scanner.nextLine();
+                                                                out.println(wordOrChar);
+                                                                Thread.sleep(500);
+                                                            }
+                                                        }
+                                                        choice2 = "3";
+                                                        break;
+                                                    }
+                                                //JOIN RANDOM ROOM 
+                                                }else if(choice2.equals("3")){
+                                                    out.println(choice2);
+                                                    Thread.sleep(300);
+
+
+                                                    if(!serverCon.getCurrentResponse().equals("Enter Mode:")){
+                                                        while(!serverCon.getCurrentResponse().equals("--")){
+                                                            Thread.sleep(100);
+                                                            String guess = serverCon.getCurrentResponse();
+                                                            if(guess.equals(">")){
+                                                                String wordOrChar = scanner.nextLine();
+                                                                out.println(wordOrChar);
+                                                                Thread.sleep(500);
+                                                            }
+                                                        }
+                                                        choice2 = "3";
+                                                        break;
+                                                    }
+                                                }else{
+                                                    System.out.println("ENTER VALUE BETWEEN [1-3]:");
+                                                }
+                                            }
+
+
+                                        }
+
+                                        
+
+
+                                    }else if(choice.equals("3")){
                                         out.println(choice);
                                         break;
                                     } else{

@@ -6,23 +6,51 @@ import java.util.Random;
 
 public class HangManMultiPlayer {
     private static final String WORDS_FILE = "words.txt";
-    private static final int MAX_ATTEMPTS = 10;
+    private static final int MAX_ATTEMPTS = 7;
     private static String word;
     private static String wordDisplay;
     private static int attemptsLeft;
     private static ArrayList<Character> wrongGuessedChars;
     private static boolean gameWon;
-    private static ArrayList<ClientHandler> OnevOne = new ArrayList<>();
-    private ClientHandler clientHandler;
-    private static int OnevOneCounter = 0;
-    private static ArrayList<ClientHandler> TwovTwo = new ArrayList<>();
+    private static ArrayList<ClientHandler> A = new ArrayList<>();
+    private static ArrayList<ClientHandler> B = new ArrayList<>();
+    private static String teamA = "TEAM A";
+    private static String teamB = "TEAM B";
+    private static int membersNumber = 1;
 
-    public HangManMultiPlayer(ClientHandler clientHandler) {
-        OnevOne.add(clientHandler);
-        if(OnevOne.size() == 2){
-            OnevOne.get(1).controllerIndex = 3;
+    public boolean checkIfTeamsAreReady(){
+        if(A.size() == membersNumber && B.size() != membersNumber){
+            A.get(0).outToAll(A, "TEAM [" + teamA + "] READYY ---- " + "WAINTING FOR TEAM ["+ teamB + "] TO GET READY");
+            if(B.size() != 0){
+                B.get(0).outToAll(B, "TEAM [" + teamA + "] READYY ---- " + "WAINTING FOR TEAM ["+ teamB + "] TO GET READY");
+            }
+                return false;
+        }else if(A.size() != membersNumber && B.size() == membersNumber){
+            if(A.size() != 0){
+                A.get(0).outToAll(A, "TEAM [" + teamB + "] READYY ---- " + "WAINTING FOR TEAM ["+ teamA + "] TO GET READY");
+            }
+            B.get(0).outToAll(B, "TEAM [" + teamB + "] READYY ---- " + "WAINTING FOR TEAM ["+ teamA + "] TO GET READY");
+            return false;
+        }else if(A.size() == membersNumber && B.size() == membersNumber){
+            A.get(0).outToAll(A, "[" + teamA + "] vs [" + teamB + "]  ---------  [" + A.get(0).userName + "] game starting now.......");
+            B.get(0).outToAll(B, "[" + teamA + "] vs [" + teamB + "]  ---------  [" + A.get(0).userName + "] game starting now.......");
+            return true;
         }
-        this.clientHandler = clientHandler;
+        return false;
+    }
+
+    public boolean checkStart(){
+        if(A.size() == membersNumber && B.size() == membersNumber){
+            return true;
+        }
+        return false;
+    }
+
+    public int getMembersNumber(){
+        return membersNumber;
+    }
+
+    public HangManMultiPlayer() {
         //LOAD THE WORDS FROM THE FILE 
         ArrayList<String> words = new ArrayList<String>();
         try {
@@ -51,19 +79,113 @@ public class HangManMultiPlayer {
         gameWon = false;
     }
 
-    public void OnevOne() throws IOException, InterruptedException{
-        while(OnevOne.size() <2){
-            OnevOne.get(0).out.println("WAITING FOR PLAYER 2.....");
-            Thread.sleep(500);
+    public boolean createTeam(ClientHandler clientHandler, String teamName, int membersNumber){
+
+        if(teamA.equals("TEAM A") && A.size()==0){
+            this.membersNumber = membersNumber;
+            clientHandler.out.println("-------------------------------Team ["+ teamName + "] Created-------------------------");
+            clientHandler.controllerIndex = 1;
+            teamA = teamName;
+            clientHandler.setTeamName(teamName);
+            clientHandler.inGame = true;
+            A.add(clientHandler);
+            checkIfTeamsAreReady();
+            return true;
+        }else if(teamB.equals("TEAM B") && B.size()==0){
+            teamB = teamName;
+            clientHandler.setTeamName(teamName);
+            clientHandler.out.println("-------------------------------Team ["+ teamName + "] Created-------------------------");
+            clientHandler.inGame = true;
+            B.add(clientHandler);
+            checkIfTeamsAreReady();
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public boolean joinExistingTeam(ClientHandler clientHandler, String name){
+        
+        //CHECK TO IF NAME IS LIKE TEAMA'S NAME IF YES CHECK IF POSSIBLE TO ADD THEN ADD
+        if(teamA.equals(name)){
+            if(A.size()<membersNumber){
+                clientHandler.setTeamName(name);
+                clientHandler.inGame = true;
+                A.add(clientHandler);
+                A.get(0).outToAll(A, "CLIENT ["+ clientHandler.userName + "] ADDED TO TEAM [" + name + "]");
+                checkIfTeamsAreReady();
+                return true;
+            }
+            clientHandler.out.println("TEAM [" + name + "] IS FULL");
+            return false;
+        //CHECK TO IF NAME IS LIKE TEAMB'S NAME IF YES CHECK IF POSSIBLE TO ADD THEN ADD
+        }else if(teamB.equals(name)){
+            if(B.size()<membersNumber){
+                clientHandler.setTeamName(name);
+                clientHandler.inGame = true;
+                B.add(clientHandler);
+                B.get(0).outToAll(B, "CLIENT ["+ clientHandler.userName + "] ADDED TO TEAM [" + name + "]");
+                checkIfTeamsAreReady();
+                return true;
+            }
+            clientHandler.out.println("------------------TEAM " + name + " IS FULL-----------------");
+            return false;
+        }
+        clientHandler.out.println("-------------------TEAM NOT FOUND-------------------");
+        return false;
+    }
+
+
+
+    public boolean joinRandomTeam(ClientHandler clientHandler){
+        if(B.size()<membersNumber){
+            clientHandler.setTeamName(teamB);
+            clientHandler.inGame = true;
+            B.add(clientHandler);
+            B.get(0).outToAll(B, "-------------CLIENT ["+ clientHandler.userName + "] ADDED TO TEAM [" + teamB + "]");
+            checkIfTeamsAreReady();
+            return true; 
+        }else if(A.size() !=0 && A.size()<membersNumber){
+            clientHandler.setTeamName(teamA);
+            clientHandler.inGame = true;
+            A.add(clientHandler);
+            A.get(0).outToAll(A, "-------------CLIENT ["+ clientHandler.userName + "] ADDED TO TEAM [" + teamA + "]");
+            checkIfTeamsAreReady();
+            return true;
+             
+        }
+        clientHandler.out.println("-------------------ALL TEAMS ARE FULL---------------");
+        return false;
+    }
+
+
+    public void play() throws IOException, InterruptedException{
+        ArrayList<ClientHandler> allPlayers = new ArrayList<>();
+
+        for(int i=0; i<membersNumber ; i++){
+            allPlayers.add(A.get(i));
+            allPlayers.add(B.get(i));
         }
 
-        MultiPlay(OnevOne);
+        for(int i=0 ; i<(membersNumber*2) ; i+=2){
+            A.get(0).outToAll(allPlayers, "Team 1: " + allPlayers.get(i).userName);
+        }
+        for(int i=1 ; i<(membersNumber*2) ; i+=2){
+            A.get(0).outToAll(allPlayers, "Team 2: " + allPlayers.get(i).userName);
+        }
 
-        //clientHandler.out.println("--");
-        OnevOne.get(0).outToAll(OnevOne, "--");
+
+
+        MultiPlay(allPlayers);
+
+        allPlayers.get(0).outToAll(allPlayers, "--");
         Thread.sleep(500);
-        OnevOne.get(0).inGame = false;
-        OnevOne.get(1).inGame = false;
+
+        for(ClientHandler c: allPlayers){
+            c.inGame = false;
+        }
+
+
     }
 
 
@@ -77,11 +199,9 @@ public class HangManMultiPlayer {
         }
 
         while (attemptsLeft > 0 && !gameWon) {
-            if(index == 0){
-                clientHandler = clients.get(index);
-            }else{
-                clientHandler = clients.get(index);
-            }
+
+            clientHandler = clients.get(index);
+            
         
             //PRINT GAME STATUS
             //clientHandler.out.println("Word: " + wordDisplay);
@@ -102,12 +222,12 @@ public class HangManMultiPlayer {
             clientHandler.out.println("Guess a character or the full word: ");
             clientHandler.out.println(">");
             input = clientHandler.in.readLine().toUpperCase();
-            index = (index+1) % 2;
+            index = (index+1) % clients.size();
 
             //CHECK IF THE WORD IS ALL GUESSED IT WILL BE CONSIDERED CORRECT
             if (input.equals(word)) {
                 gameWon = true;
-                clientHandler.won = true;
+                clientHandler.setWon(true);
                 break;
             } else if(input.equals("-")){
                 break;
@@ -128,6 +248,7 @@ public class HangManMultiPlayer {
                     wordDisplay = wordDisplayBuilder.toString();
                     if (!wordDisplay.contains("_")) {
                         gameWon = true;
+                        clientHandler.setWon(true);
                     }
                 }else {
                     //GUSSED CHAR IS INCORRECT
@@ -144,12 +265,11 @@ public class HangManMultiPlayer {
   
 
         //GAME RESULT
-        //clientHandler.out.println("The word was: " + word);
-        OnevOne.get(0).outToAll(clients, "The word was: " + word);
+        clients.get(0).outToAll(clients, "The word was: " + word);
         
         if (gameWon) {
             for(ClientHandler c : clients){
-                if(c.won == true){
+                if(c.getWon() == true){
                     c.out.println("----------------------------------Congratulations, you won :) ----------------------------------");
                     String score = "MultiPlayer: " + "WON" + "--";
                     c.getUser().setScoreHistory(score);
@@ -160,31 +280,18 @@ public class HangManMultiPlayer {
                 }
                 
             }
-
-
-
-            // clientHandler.out.println("----------------------------------Congratulations, you won!----------------------------------");
-            // clientHandler.out.println("--");
-            // String score = "MultiPlayer: " + attemptsLeft + "--";
-            // clientHandler.getUser().setScoreHistory(score);
-            // clientHandler.inGame = false;
-            //return attemptsLeft;
+        }else if(input.equals("-")){
+            for(ClientHandler c : clients){
+                c.out.println("---------------------------------- GAME EXITTING NOW :|  ----------------------------------");
+                String score = "MultiPlayer: " + "EXITTED" + "--";
+                c.getUser().setScoreHistory(score);
+            }
+        }else{
+            for(ClientHandler c : clients){
+                c.out.println("---------------------------------- TIE ----------------------------------");
+                    String score = "MultiPlayer: " + "TIE" + "--";
+                    c.getUser().setScoreHistory(score);
+            }
         }
-        //else if(input.equals("-")){
-        //     clientHandler.out.println("----------------------------------EXITTING GAME NOW----------------------------------");
-        //     //clientHandler.out.println("--");
-        //     clientHandler.getUser().setScoreHistory("MultiPlayer:EXITTED--");
-        //     clientHandler.inGame = false;
-        //     //////////////////////////////////HANDLE IF ONE EXXITED////////////////////
-        //    // return 100;
-        // } else {
-        //     clientHandler.out.println("----------------------------------Sorry, you lost.----------------------------------");
-        //     //clientHandler.out.println("--");
-        //     Thread.sleep(500);
-        //     clientHandler.getUser().setScoreHistory("MultiPlayer:0--");
-        //     for(ClientHandler c: clients){
-        //         c.inGame = false;
-        //     }
-           // return 0;
         }
     }

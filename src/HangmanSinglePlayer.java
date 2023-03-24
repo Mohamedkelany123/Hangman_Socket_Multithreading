@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class HangmanSinglePlayer {
     private static final String WORDS_FILE = "words.txt";
-    private static final int MAX_ATTEMPTS = 10;
+    private static final int MAX_ATTEMPTS = 7;
     private String word;
     private String wordDisplay;
     private int attemptsLeft;
