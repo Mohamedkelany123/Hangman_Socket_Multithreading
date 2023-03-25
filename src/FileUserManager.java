@@ -8,8 +8,41 @@ import java.util.ArrayList;
 
 public class FileUserManager {
     private static final String USER_DATA_FILE = "user_data.txt";
+    private static final String GAME_CONFIG = "game_configuration.txt";
     
-
+    public static ArrayList<String> loadConfig() {
+        ArrayList<String> configurations = new ArrayList<String>();
+        try {
+            File file = new File(GAME_CONFIG);
+            if (file.exists()) {
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line;
+                if ((line = reader.readLine()) == null){
+                    reader.close();
+                    return configurations;
+                } else{
+                while ((line = reader.readLine()) != null) {
+                    String[] tokens = line.split(",");
+                    String maxAttempts = tokens[0];
+                    String minPlayers = tokens[1];
+                    String maxPlayers = tokens[2];
+                    
+                    configurations.add(maxAttempts);
+                    configurations.add(minPlayers);
+                    configurations.add(maxPlayers);
+                }
+                reader.close();
+            }
+                
+            } else {
+                return configurations;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return configurations;
+    }
+    
     public static ArrayList<User> loadUsers() {
         ArrayList<User> users = new ArrayList<User>();
 
@@ -19,8 +52,6 @@ public class FileUserManager {
             if (file.exists()) {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 String line;
-
-               
 
                 if ((line = reader.readLine()) == null){
                     reader.close();

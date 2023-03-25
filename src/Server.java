@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 public class Server {
     private static ArrayList<User> users = FileUserManager.loadUsers();
+    private static ArrayList<String> gameConfiguration = FileUserManager.loadConfig();
     private static ArrayList<ClientHandler> clients = new ArrayList<>();
     private static ExecutorService pool = Executors.newFixedThreadPool(20);
 
@@ -23,7 +24,7 @@ public class Server {
             while (true) {
                 clientSocket = listener.accept();
                 System.out.println("New client connected: " + clientSocket);
-                ClientHandler clientThread = new ClientHandler(clientSocket, users,clients);
+                ClientHandler clientThread = new ClientHandler(clientSocket, users,clients, gameConfiguration);
                 clients.add(clientThread);
                 pool.execute(clientThread);
             }

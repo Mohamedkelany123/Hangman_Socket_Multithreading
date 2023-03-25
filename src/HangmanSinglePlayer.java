@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class HangmanSinglePlayer {
     private static final String WORDS_FILE = "words.txt";
-    private static final int MAX_ATTEMPTS = 7;
+    private static int MAX_ATTEMPTS = 7;
     private String word;
     private String wordDisplay;
     private int attemptsLeft;
@@ -33,8 +33,14 @@ public class HangmanSinglePlayer {
         int wordIndex = random.nextInt(words.size());
         //GETS THE WORD BY ITS INDEX
         word = words.get(wordIndex);
-        
         //TO DISPLAY _ _ _ _ _ TO THE USER
+        // for (int i = 0; i < word.length(); i++) {
+        //     if(word.charAt(i)==' '){
+        //         wordDisplay = wordDisplay.concat(" ");
+        //     }else{
+        //         wordDisplay = wordDisplay.concat("_");
+        //     }
+        // }
         wordDisplay = word.replaceAll("[A-Z]", "_ ");
         attemptsLeft = MAX_ATTEMPTS;
         //STORE ALL GUESSED CHARS SO THAT YOU DONT GUESS A CHAR AGAIN
@@ -77,14 +83,18 @@ public class HangmanSinglePlayer {
                 char guessedChar = input.charAt(0);
                 if (word.contains(String.valueOf(guessedChar))) {
                     //CHECK IF CHAT IS CORRECT
-                    wrongGuessedChars.add(guessedChar);
                     StringBuilder wordDisplayBuilder = new StringBuilder(wordDisplay);
+                    int temp = 0;
                     for (int i = 0; i < word.length(); i++) {
                         if (word.charAt(i) == guessedChar) {
-                            wordDisplayBuilder.setCharAt(i * 2, guessedChar);
+                            wordDisplayBuilder.setCharAt((i * 2)+temp, guessedChar);
+                        } else if(Character.isWhitespace(word.charAt(i))){
+                            temp -= 1;
                         }
                     }
                     wordDisplay = wordDisplayBuilder.toString();
+                    
+                    
                     if (!wordDisplay.contains("_")) {
                         gameWon = true;
                     }

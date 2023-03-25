@@ -19,7 +19,19 @@ public class ClientHandler implements Runnable {
     public int controllerIndex = 0;
     private boolean won = false;
     private String teamName;
-    private static int teamLeaders = 0;
+    private static int iter = 0;
+    private static int teamSize = 0;
+
+
+    public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients, ArrayList<String> gameConfig) throws IOException {
+        this.clientSocket = clientSocket;
+        this.users = users;
+        this.clients = clients;
+        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        this.inGame = false;
+    }
+
 
     public void setTeamName(String name){
         teamName = name;
@@ -41,30 +53,14 @@ public class ClientHandler implements Runnable {
         return score;
     }
     
-    public void incrementScore(){
-        score = score+1;
+    public void incrementScore(int s){
+        score = s;
     }
 
-    public ClientHandler(Socket clientSocket, ArrayList<User> users,ArrayList<ClientHandler> clients) throws IOException {
-        this.clientSocket = clientSocket;
-        this.users = users;
-        this.clients = clients;
-        in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-        out = new PrintWriter(clientSocket.getOutputStream(), true);
-        this.inGame = false;
-    }
 
     public void outToAll(ArrayList<ClientHandler> Clients, String msg) {
         for(ClientHandler aClient : Clients){
             aClient.out.println(msg);
-        }
-    }
-
-    private void outToClient(String msg,String uName, String pass) {
-        for(ClientHandler aClient : clients){
-            if(aClient.userName.equals(uName) && aClient.passwd.equals(pass)){
-                aClient.out.println(msg);
-            }             
         }
     }
 
@@ -159,13 +155,13 @@ public class ClientHandler implements Runnable {
                         String gameMode = in.readLine();
                         
                         if(gameMode.equals("1")){
-                            out.println("------------- HANGMAN SINGLEPLAYER -------------");
+                            out.println("---- HANGMAN SINGLEPLAYER ----");
                             out.println("RULES:");
                             out.println("-YOU HAVE TOTAL 7 WRONG ATTEMPTS");
                             out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
                             out.println("-THE SCORE IS CALCULATED BY NUMBER OF WRONG ATTEMPTS LEFT [10 MAX SCORE]-[0 MIN SCORE]");
                             out.println("-WORD GUESSING ARE CASE INSENSITIVE");
-                            out.println("---------------------------------------------------------------------------------------");
+                            out.println("-------------------------------");
 
                             HangmanSinglePlayer singlePlayer = new HangmanSinglePlayer();
                             singlePlayer.singlePlay(this);
@@ -173,20 +169,24 @@ public class ClientHandler implements Runnable {
 
                         } else if(gameMode.equals("2")){
 
-                            out.println("------------- HANGMAN MULTIPLAYER -------------");
+                            out.println("---- HANGMAN MULTIPLAYER ----");
                             out.println("RULES:");
-                            out.println("-YOU HAVE TOTAL 7 WRONG ATTEMPTS");
+                            out.println("-EACH TEAM HAS TOTAL 7 WRONG ATTEMPTS");
                             out.println("-YOU CAN EITHER GUESS 1 [CHAR] OR THE FULL WORD");
                             out.println("-EACH PLAYER HAS HIS OWN TURN TO GUESS");
+                            out.println("-FIRST TEAM TO GUESS THE WORD CORRECT OR OPPONENT TEAM RUNS OUT OF ATTEMPTS WINS");
+                            out.println("-WINNING TEAM GETS [+50Pts]");
+                            out.println("-LOOSING TEAM GETS [-50Pts]");
                             out.println("-WORD GUESSING ARE CASE INSENSITIVE");
-                            out.println("-FIRST TEAM TO GUESS THE WORD CORRECT WINS");
-                            out.println("---------------------------------------------------------------------------------------");
+
+                            out.println("--------------------------------");
 
                         HangManMultiPlayer hangManMultiPlayer= new HangManMultiPlayer();
                         while(true){
                             out.println("1.Create Team");
                             out.println("2.Join Existing Team");
                             out.println("3.Join Random Team");  
+                            out.println("4.EXIT"); 
                             out.println("Enter Mode:");
                             Thread.sleep(100);
                             String mode = in.readLine();
@@ -197,33 +197,38 @@ public class ClientHandler implements Runnable {
                                 Thread.sleep(100);
                                 String name = in.readLine();
                                 //PUT INTO CONSIDERATION TO MAKE MAX 5 PLAYERS
-                                out.println("Enter number of team members: ");
-                                Thread.sleep(100);
-                                String number = in.readLine();
-                                int num= Integer.parseInt(number);
+                                if(iter == 0){
+                                    out.println("Enter number of team members: ");
+                                    Thread.sleep(100);
+                                    String number = in.readLine();
+                                    teamSize= Integer.parseInt(number);
+                                    iter++;
+                                }else{
+                                    out.println("TEAM SIZE = "+ teamSize);
+                                }
 
-                                boolean created = hangManMultiPlayer.createTeam(this, name, num);
+                                boolean created = hangManMultiPlayer.createTeam(this, name, teamSize);
 
                                 ///////////////ME7TAGEEN NE7OT DE F LOOP
                                 // out.println("Press (S) To start game:");
                                 // String s = in.readLine();
-                                out.println("CONTROLLER= "+ this.controllerIndex);
+                                //out.println("CONTROLLER= "+ this.controllerIndex);
 
-                                //TO START GAME THE CONTROLLER IS THER ONE THAT CREATED THE FIRST TEAM
-                                while(inGame){
-                                    Thread.sleep(400);
-                                    
-                                    if(hangManMultiPlayer.checkStart() && this.controllerIndex == 1){
-                                        hangManMultiPlayer.play();
-                                        break;
+                                if(created){
+                                    //TO START GAME THE CONTROLLER IS THER ONE THAT CREATED THE FIRST TEAM
+                                    while(inGame){
+                                        Thread.sleep(400);
+                                        
+                                        if(hangManMultiPlayer.checkStart() && this.controllerIndex == 1){
+                                            iter=0;
+                                            teamSize=0;
+                                            hangManMultiPlayer.play();
+                                        }
                                     }
+                                    FileUserManager.saveUsers(users);
+                                    break;
                                 }
-                                FileUserManager.saveUsers(users);
 
-
-                                if(created){break;}
-                                out.println("--------------- 2 TEAMS ALREADY CREATED --------------");
-                                Thread.sleep(300);
 
                             //JOIN EXISTING TEAM
                             }else if(mode.equals("2")){
@@ -250,7 +255,9 @@ public class ClientHandler implements Runnable {
                                     break;
                                 }
 
-                            }  
+                            } else if(mode.equals("4")){
+                                break;
+                            }
                         }
 
                         } else if(gameMode.equals("3")){

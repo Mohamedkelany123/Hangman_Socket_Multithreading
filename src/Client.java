@@ -3,9 +3,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.Scanner;
-
-import javax.swing.plaf.synth.SynthSeparatorUI;
 
 public class Client {    
     public static void main(String[] args) throws InterruptedException {
@@ -108,8 +107,6 @@ public class Client {
                                                 out.println(wordOrChar);
                                                 Thread.sleep(500);
                                             } 
-
-
                                         }
                                         serverCon.setCurrentMsg("blaaaaa");
                                     } else if(choice.equals("2")){
@@ -127,19 +124,29 @@ public class Client {
                                                 if(choice2.equals("1")){
                                                     out.println(choice2);
                                                     Thread.sleep(300);
-
                                                     if(serverCon.getCurrentResponse().equals("Enter Team Name: ")){
                                                         String name = scanner.nextLine();
                                                         out.println(name);
                                                         Thread.sleep(300);
                                                     }
                                                     if(serverCon.getCurrentResponse().equals("Enter number of team members: ")){
-                                                        String number = scanner.nextLine();
-                                                        out.println(number);
+                                                        int number = 0;
+                                                        while (true) {
+                                                            try {
+                                                                number = scanner.nextInt();
+                                                                break; // break out of the loop if input is valid
+                                                            } catch (InputMismatchException e) {
+                                                                System.out.println("Error: Please enter a valid integer input:");
+                                                                scanner.nextLine(); // consume the invalid input
+                                                            }
+                                                        }
+                                                        
+                                                        String strNumber = Integer.toString(number);
+
+                                                        out.println(strNumber);
                                                         Thread.sleep(300);
                                                     }
-
-                                                    if(!serverCon.getCurrentResponse().equals("--------------- 2 TEAMS ALREADY CREATED --------------")){
+                                                    if(!serverCon.getCurrentResponse().equals("Enter Mode:")){
                                                         while(!serverCon.getCurrentResponse().equals("--")){
                                                             Thread.sleep(100);
                                                             String guess = serverCon.getCurrentResponse();
@@ -150,12 +157,7 @@ public class Client {
                                                             } 
                                                         }
                                                         break;
-                                                    }
-
-        
-
-                                                    
-                                                    
+                                                    } 
                                                 //JOIN EXISTING TEAM
                                                 }else if(choice2.equals("2")){
                                                     out.println(choice2);
@@ -199,17 +201,15 @@ public class Client {
                                                         choice2 = "3";
                                                         break;
                                                     }
+                                                }else if(choice2.equals("4")){
+                                                    out.println(choice2);
+                                                    Thread.sleep(300);
+                                                    break;
                                                 }else{
                                                     System.out.println("ENTER VALUE BETWEEN [1-3]:");
                                                 }
                                             }
-
-
                                         }
-
-                                        
-
-
                                     }else if(choice.equals("3")){
                                         out.println(choice);
                                         break;
